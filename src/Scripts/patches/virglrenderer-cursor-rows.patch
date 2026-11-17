@@ -1,0 +1,25 @@
+virglrenderer 1.3.0: give the cursor's rows top first unless its resource is
+y_0_top.
+
+vrend_renderer_get_cursor_contents turns every cursor image over. A cursor the
+kernel uploads from a dumb buffer is stored top row first (its transfer isn't
+inverted, since it isn't y_0_top), so turning it over shows it upside down.
+Turn it over only when the resource is y_0_top, the rule transfers back to the
+guest follow. Scripts/build-virgl.sh applies it.
+
+diff -ruN a/src/vrend/vrend_renderer.c c/src/vrend/vrend_renderer.c
+--- a/src/vrend/vrend_renderer.c
++++ b/src/vrend/vrend_renderer.c
+@@ -12966,8 +12966,11 @@
+       glGetTexImage(res->target, 0, format, type, data);
+    }
+ 
++   /* crate: rows top first, as a transfer back to the guest gives them, which
++    * turns them over only for a y_0_top resource. Turning every cursor over
++    * puts a cursor uploaded from a dumb buffer upside down. */
+    for (h = 0; h < res->base.height0; h++) {
+-      uint32_t doff = (res->base.height0 - h - 1) * res->base.width0 * blsize;
++      uint32_t doff = (res->y_0_top ? res->base.height0 - h - 1 : h) * res->base.width0 * blsize;
+       uint32_t soff = h * res->base.width0 * blsize;
+ 
+       memcpy(data2 + doff, data + soff, res->base.width0 * blsize);

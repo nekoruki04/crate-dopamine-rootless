@@ -1,0 +1,4 @@
+module CrateEngine {
+    header "crate.h"
+    export *
+}

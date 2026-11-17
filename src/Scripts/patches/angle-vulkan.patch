@@ -1,0 +1,130 @@
+ANGLE's Vulkan backend for an iOS app, over MoltenVK. Written for aTerm (the app
+crate-ios succeeds) against upstream ANGLE 9addc2983b90152f628cfdaea194983b46b254bd;
+Scripts/build-angle.sh applies it.
+
+  - BUILD.gn, system_utils.cpp: libEGL dispatches to GLESv2.framework/GLESv2, the
+    one GLESv2 the app embeds, and finds it by its framework path.
+  - vulkan/BUILD.gn, libvulkan_loader.cpp: open MoltenVK.framework directly; an
+    app can't use the Khronos loader, which needs an ICD manifest.
+  - vk_renderer.cpp: on MoltenVK, don't let the missing VK_EXT_provoking_vertex
+    cap the context at ES 2.0 (Metal fixes the provoking vertex), and keep
+    primitive topology static, without which MoltenVK draws a triangle fan as
+    one triangle.
+
+diff --git a/BUILD.gn b/BUILD.gn
+index f38d9e8..5ab9e40 100644
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -1465,6 +1465,12 @@ config("shared_library_public_config") {
+ }
+ 
+ _angle_glesv2_library_name = "libGLESv2${angle_libs_suffix}"
++if (is_ios) {
++  # aTerm: the app embeds ANGLE as EGL.framework and GLESv2.framework, the names
++  # libepoxy opens. libEGL must dispatch to that same GLESv2 binary; a second
++  # copy under another name would be a second ANGLE with no current context.
++  _angle_glesv2_library_name = "GLESv2"
++}
+ _angle_glesv2_vulkan_secondaries_library_name =
+     "libGLESv2_vulkan_secondaries${angle_libs_suffix}"
+ 
+diff --git a/src/common/system_utils.cpp b/src/common/system_utils.cpp
+index 99fcc10..9187efe 100644
+--- a/src/common/system_utils.cpp
++++ b/src/common/system_utils.cpp
+@@ -215,7 +215,11 @@ void *OpenSystemLibraryAndGetError(const char *libraryName,
+     // On iOS, libraryWithExtension is a directory in which the library resides.
+     // The actual library name doesn't have an extension at all.
+     // E.g. "libEGL.framework/libEGL"
+-    libraryWithExtension = libraryWithExtension + "/" + libraryName;
++    //
++    // aTerm: build that path from ".framework", which is what the comment above
++    // describes and what an iOS app actually embeds. Appending the "dylib"
++    // extension produced "libGLESv2.dylib/libGLESv2", which never exists.
++    libraryWithExtension = std::string(libraryName) + ".framework/" + libraryName;
+ #endif
+     return OpenSystemLibraryWithExtensionAndGetError(libraryWithExtension.c_str(), searchType,
+                                                      errorOut);
+diff --git a/src/common/vulkan/BUILD.gn b/src/common/vulkan/BUILD.gn
+index aaf4379..84fdabf 100644
+--- a/src/common/vulkan/BUILD.gn
++++ b/src/common/vulkan/BUILD.gn
+@@ -123,7 +123,9 @@ if (angle_enable_vulkan) {
+       if (!angle_use_vulkan_null_display) {
+         public_deps += [ "//third_party/fuchsia-sdk/sdk/pkg/vulkan_layers:VkLayer_image_pipe_swapchain" ]
+       }
+-    } else if (!is_android) {
++    } else if (!is_android && !is_ios) {
++      # aTerm: not on iOS, where ANGLE opens MoltenVK directly (see
++      # libvulkan_loader.cpp) and the Khronos loader does not build.
+       if (angle_shared_libvulkan) {
+         data_deps = [ "$angle_vulkan_loader_dir:libvulkan" ]
+       } else {
+diff --git a/src/common/vulkan/libvulkan_loader.cpp b/src/common/vulkan/libvulkan_loader.cpp
+index 446c545..3b04b43 100644
+--- a/src/common/vulkan/libvulkan_loader.cpp
++++ b/src/common/vulkan/libvulkan_loader.cpp
+@@ -17,6 +17,18 @@ namespace vk
+ {
+ void *OpenLibVulkan()
+ {
++#if ANGLE_PLATFORM_IOS_FAMILY
++    // aTerm: in an iOS app, Vulkan is MoltenVK embedded in the bundle's Frameworks
++    // directory. No bare library name below can reach it, since an app cannot
++    // install anything into the system search path. Talk to MoltenVK directly
++    // rather than through the loader, which would also need an ICD manifest.
++    if (void *library =
++            OpenSystemLibraryWithExtension("MoltenVK.framework/MoltenVK", SearchType::ModuleDir))
++    {
++        return library;
++    }
++#endif
++
+     constexpr const char *kLibVulkanNames[] = {
+ #if defined(ANGLE_PLATFORM_WINDOWS)
+         "vulkan-1.dll",
+diff --git a/src/libANGLE/renderer/vulkan/vk_renderer.cpp b/src/libANGLE/renderer/vulkan/vk_renderer.cpp
+index 48f03ef..8dd4136 100644
+--- a/src/libANGLE/renderer/vulkan/vk_renderer.cpp
++++ b/src/libANGLE/renderer/vulkan/vk_renderer.cpp
+@@ -5410,7 +5410,17 @@ gl::Version Renderer::getMaxSupportedESVersion() const
+     // Limit to ES2.0 if there are any blockers for 3.0.
+ 
+     // VK_EXT_provoking_vertex is required for flat shading.
+-    if (!mFeatures.provokingVertex.enabled)
++    //
++    // aTerm: except on MoltenVK, where the extension cannot exist -- Metal fixes
++    // the provoking vertex at the first one -- and where this one gate is all that
++    // stood between ES 2.0 and ES 3.1. Measured on Apple M3 / MoltenVK 1.4:
++    // every other ES 3.0 and 3.1 requirement passes, and compute shaders return
++    // correct results. The cost is that a `flat` varying takes the first vertex's
++    // value rather than the last, which only differs when one primitive's vertices
++    // carry different flat values. ES 3.2 stays out of reach regardless: there
++    // are no geometry shaders, so CanSupportGLES32 caps this at 3.1.
++    if (!mFeatures.provokingVertex.enabled &&
++        mDriverProperties.driverID != VK_DRIVER_ID_MOLTENVK)
+     {
+         maxVersion = LimitVersionTo(maxVersion, {2, 0});
+     }
+@@ -6575,9 +6585,18 @@ void Renderer::initFeatures(const vk::ExtensionNameList &deviceExtensionNames,
+     // not disabled because primitive restart is not disabled outside tests.
+     //
+     // Also seeing rendering issues on PowerVR (http://b/472763050)
+-    ANGLE_FEATURE_CONDITION(
+-        &mFeatures, usePrimitiveTopologyDynamicState,
+-        mFeatures.supportsExtendedDynamicState.enabled && !isARMProprietary && !isPowerVR);
++    //
++    // aTerm: and on MoltenVK, where it silently breaks GL_TRIANGLE_FAN. Metal has no
++    // fans, so MoltenVK emulates them -- but decides whether to from the pipeline's
++    // static topology. A fan supplied as dynamic state at draw time is drawn as a
++    // plain triangle list, so a 4-vertex fan quad renders only its first triangle.
++    // Weston composites with fans, and the result was half of every window never
++    // updating. Measured on Apple M3 / MoltenVK 1.4.2 with drawArrays and
++    // drawElements; strips were unaffected and ANGLE's Metal backend was correct.
++    const bool isMoltenVK = mDriverProperties.driverID == VK_DRIVER_ID_MOLTENVK;
++    ANGLE_FEATURE_CONDITION(&mFeatures, usePrimitiveTopologyDynamicState,
++                            mFeatures.supportsExtendedDynamicState.enabled && !isARMProprietary &&
++                                !isPowerVR && !isMoltenVK);
+     ANGLE_FEATURE_CONDITION(&mFeatures, useStencilOpDynamicState,
+                             mFeatures.supportsExtendedDynamicState.enabled);
+     ANGLE_FEATURE_CONDITION(&mFeatures, useStencilTestEnableDynamicState,

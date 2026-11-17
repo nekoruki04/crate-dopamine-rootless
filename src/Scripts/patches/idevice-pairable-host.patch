@@ -1,0 +1,79 @@
+diff --git a/ffi/src/pairing_host.rs b/ffi/src/pairing_host.rs
+index e5e56b5..2f32ae3 100644
+--- a/ffi/src/pairing_host.rs
++++ b/ffi/src/pairing_host.rs
+@@ -97,6 +97,11 @@ pub unsafe extern "C" fn pairable_host_prepare(
+     let mut host_info = PairableHostInfo::generate(name, model);
+     host_info.allows_pinless_pairing = allows_pinless_pairing;
+     let service_id = pairing_file.identifier.clone();
++    // Present the host's stable identifier as its identity too, rather than
++    // empty strings: pairing works either way, but the device keeps an
++    // identity-less host out of its list of paired computers.
++    host_info.identifier = service_id.clone();
++    host_info.udid = service_id.clone();
+ 
+     let mut dict = plist::Dictionary::new();
+     for (key, value) in host_info.mdns_txt_records(&service_id) {
+@@ -256,6 +261,31 @@ pub unsafe extern "C" fn pairable_host_handshake(
+     unsafe { pairable_host_accept_fd(handle, fd, pin_cb, ctx, null_mut(), out_pairing_file) }
+ }
+ 
++/// Sets the 6-digit setup code pair-setup will use, instead of a random one
++/// drawn once the device has connected, so the caller can show it to the user
++/// before they go to the device. The PIN callback still reports it.
++///
++/// # Safety
++/// `handle` must be a valid handle from `pairable_host_prepare` or
++/// `pairable_host_new`. `code` must be a valid null-terminated C string of six
++/// ASCII digits.
++#[unsafe(no_mangle)]
++pub unsafe extern "C" fn pairable_host_set_setup_code(
++    handle: *mut PairableHostHandle,
++    code: *const c_char,
++) -> *mut IdeviceFfiError {
++    if handle.is_null() || code.is_null() {
++        return ffi_err!(IdeviceError::FfiInvalidArg);
++    }
++    let code = match unsafe { CStr::from_ptr(code) }.to_str() {
++        Ok(s) if s.len() == 6 && s.bytes().all(|b| b.is_ascii_digit()) => s.to_string(),
++        Ok(_) => return ffi_err!(IdeviceError::FfiInvalidArg),
++        Err(_) => return ffi_err!(IdeviceError::FfiInvalidString),
++    };
++    unsafe { (*handle).host_info.setup_code = Some(code) };
++    null_mut()
++}
++
+ /// Frees a `PairableHostHandle`.
+ ///
+ /// # Safety
+diff --git a/idevice/src/remote_pairing/responder.rs b/idevice/src/remote_pairing/responder.rs
+index 891cfdb..1d0f9e0 100644
+--- a/idevice/src/remote_pairing/responder.rs
++++ b/idevice/src/remote_pairing/responder.rs
+@@ -67,6 +67,9 @@ pub struct PairableHostInfo {
+     /// Advertise pinless pairing support. When enabled, pair-setup uses Apple's
+     /// conventional all-zero setup code instead of a user-entered random PIN.
+     pub allows_pinless_pairing: bool,
++    /// The 6-digit setup code pair-setup uses, when the caller chose one so it
++    /// can show it before the device connects. `None` draws a random one then.
++    pub setup_code: Option<String>,
+ }
+ 
+ impl PairableHostInfo {
+@@ -118,6 +121,7 @@ impl Default for PairableHostInfo {
+             wire_protocol_version: 26,
+             alt_irk: [0u8; 16],
+             allows_pinless_pairing: false,
++            setup_code: None,
+         }
+     }
+ }
+@@ -267,6 +271,8 @@ impl<R: super::RpPairingSocketProvider> PairableHost<R> {
+ 
+         let pin = if self.host_info.allows_pinless_pairing {
+             "000000".to_string()
++        } else if let Some(code) = &self.host_info.setup_code {
++            code.clone()
+         } else {
+             format!("{:06}", rand::rng().random_range(0..1_000_000))
+         };

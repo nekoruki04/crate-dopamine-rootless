@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+
+APP_PATH=""
+if [ -d "/var/jb/Applications/Crate.app" ]; then
+    APP_PATH="/var/jb/Applications/Crate.app"
+elif [ -d "/Applications/Crate.app" ]; then
+    APP_PATH="/Applications/Crate.app"
+fi
+
+if [ -n "$APP_PATH" ]; then
+    if [ -x "/var/jb/usr/bin/uicache" ]; then
+        /var/jb/usr/bin/uicache -p "$APP_PATH"
+    elif which uicache >/dev/null 2>&1; then
+        uicache -p "$APP_PATH"
+    fi
+fi
+
+exit 0

@@ -1,0 +1,29 @@
+virglrenderer 1.3.0 on ANGLE: declare integer vertex attributes as integers.
+
+Upstream feeds a pure-integer vertex attribute with glVertexAttribIFormat but,
+unless use_integer is on, declares it in the generated GLSL as a float and
+reads the bits back with floatBitsToUint. Desktop drivers hand the bits over
+regardless. ANGLE on Vulkan converts to the declared type, so the values come
+out wrong. Chrome passes its glyph texture coordinates that way (R16G16_UINT),
+so every glyph sampled outside its atlas: invisible text on an iPhone, black
+boxes on a Mac, images missing too. Upstream already turns use_integer on for
+ARM's driver; this adds ANGLE. Scripts/build-virgl.sh applies it.
+
+diff -ruN a/src/vrend/vrend_renderer.c b/src/vrend/vrend_renderer.c
+--- a/src/vrend/vrend_renderer.c
++++ b/src/vrend/vrend_renderer.c
+@@ -7560,6 +7560,14 @@
+        return false;
+    if (strcmp(a, "ARM") == 0)
+       return true;
++   /* crate: ANGLE, too. On Vulkan it gives a vertex shader input the type it
++    * is declared with, so an integer attribute (glVertexAttribIFormat) read
++    * through a float declaration and floatBitsToUint comes out as garbage:
++    * Chrome's glyph coordinates are such an attribute, and every glyph then
++    * samples outside the atlas. */
++   const char *renderer = (const char *) glGetString(GL_RENDERER);
++   if (renderer && strstr(renderer, "ANGLE"))
++      return true;
+    return false;
+ }
+ 
