@@ -1,171 +1,137 @@
 # Crate (Dopamine Rootless)
 
-[![Platform: iOS 16.0+](https://img.shields.io/badge/platform-iOS%2016.0%2B-blue.svg)](https://apple.com)
-[![Architecture: arm64 / arm64e](https://img.shields.io/badge/arch-arm64%20%7C%20arm64e-success.svg)](https://en.wikipedia.org/wiki/AArch64)
-[![Jailbreak: Dopamine Rootless / RootHide](https://img.shields.io/badge/jailbreak-Dopamine%20Rootless%20%7C%20RootHide-orange.svg)](https://github.com/opa334/Dopamine)
-[![License: MPL-2.0](https://img.shields.io/badge/license-MPL--2.0-green.svg)](LICENSE)
-[![Release: v1.0.0](https://img.shields.io/badge/release-v1.0.0-purple.svg)](build/crate-dopamine-rootless_1.0.0_iphoneos-arm.deb)
-
-An autonomous, rootless jailbreak port of **[Crate iOS](https://github.com/oneamendez/crate-ios)** for **[Dopamine](https://github.com/opa334/Dopamine)** and **[Dopamine RootHide](https://github.com/roothide/Dopamine-roothide)** jailbreaks on iOS & iPadOS 16.0 through 16.5.1.
-
-Crate is a high-performance virtual machine manager that runs full Linux distributions directly on Apple Silicon iOS devices. This port transforms Crate into a self-contained, rootless Debian package (`.deb`) with **native, autonomous JIT code execution**—eliminating all tethering, debugger companions, pairing profiles, and computer dependencies.
+A rootless iOS jailbreak port of [Crate](https://github.com/oneamendez/crate-ios) that runs Linux virtual machines directly on iOS with in-process JIT and no companion app.
 
 ---
 
-## Key Features
+## Overview
 
-- **Autonomous Direct JIT Activation**:
-  Leverages native Dopamine jailbreak task debugging flags (`CS_DEBUGGED`) and memory protection transitions (`mprotect` / `MAP_JIT`). No StikJIT, StikDebug, LocalDevVPN, NetworkExtension pairing profiles, or external computers required.
-- **Rootless Subsystem Compliance**:
-  Installed strictly to `/var/jb/Applications/Crate.app` with zero modifications to the sealed system volume (SSV). Automatically registers with SpringBoard via `uicache` maintainer hooks.
-- **Retargeted for iOS / iPadOS 16**:
-  Backported from iOS 18 APIs to iOS 16.0 deployment target across both the main binary and all 7 bundled dynamic frameworks (`slirp`, `glib`, `EGL`, `GLESv2`, `epoxy`, `virglrenderer.1`, `MoltenVK`).
-- **Preserved Rust Virtualization Engine**:
-  Maintains the full upstream `crate-core` emulation architecture, including dynamic AArch64 translation cache (`crate-jit`), VirtIO MMIO bus (`crate-devices`), VirtIO-GPU 3D acceleration over Metal, and SLIRP userspace networking.
-- **Optimized for 4 GB Devices**:
-  Calibrated memory allocation boundaries and Jetsam limits specifically for A12X (iPad Pro 11-inch 2018) and A13 (iPhone 11 Pro) hardware.
+[Crate](https://github.com/oneamendez/crate-ios) is an iOS application that runs Linux virtual machines using a custom ARM64 dynamic binary translation engine (`crate-core`) and VirtIO devices. On stock iOS, executing JIT-compiled code requires an external debugger or a companion application (such as StikJIT) connected over a local VPN tunnel.
+
+This port adapts Crate for rootless jailbreak environments running [Dopamine](https://github.com/opa334/Dopamine) or Dopamine RootHide on iOS 16. It enables direct in-process executable memory execution without companion apps or computer pairing, and packages the application as a standard rootless Debian package (`.deb`).
 
 ---
 
-## Device Compatibility
+## What This Port Changes
 
-| Device Profile | SoC | Architecture | Tested OS | Jailbreak Environment | JIT Mode | Status |
-|---|---|---|---|---|---|---|
-| **iPad Pro 11" (1st Gen, 2018)** *(Primary Target)* | Apple A12X Bionic | `arm64e` | iPadOS 16.1.1 | Dopamine RootHide / Rootless | Autonomous In-Process | **Verified** |
-| **iPhone 11 Pro** *(Secondary Target)* | Apple A13 Bionic | `arm64e` | iOS 16.1 – 16.5 | Dopamine Rootless | Autonomous In-Process | **Verified** |
-| **iPad Pro 11" / 12.9" (2020)** | Apple A12Z Bionic | `arm64e` | iPadOS 16.0 – 16.5.1 | Dopamine RootHide / Rootless | Autonomous In-Process | **Compatible** |
-| **iPhone 12 / 13 / 14 Series** | Apple A14 / A15 / A16 | `arm64e` | iOS 16.0 – 16.5.1 | Dopamine Rootless | Autonomous In-Process | **Compatible** |
-| **iPad Air / Pro (M1 / M2)** | Apple M1 / M2 | `arm64e` | iPadOS 16.0 – 16.5.1 | Dopamine Rootless | Autonomous In-Process | **Compatible** |
-| **iPhone X / 8 / 8 Plus** | Apple A11 Bionic | `arm64` | iOS 15.0 – 16.7.x | palera1n Rootless | Standard `CS_DEBUGGED` | **Compatible** |
+- **Direct in-process JIT**: Removed the StikJIT companion application, LocalDevVPN, pairing profiles, and network extension helper code. The application uses jailbreak code-signing flags (`CS_DEBUGGED`) and entitlements (`dynamic-codesigning`, `com.apple.private.cs.debugger`) to allocate and execute translated code directly via `mprotect`.
+- **Rootless filesystem layout**: Packaged to install under `/var/jb/Applications/Crate.app` following rootless package conventions. Maintainer scripts handle `uicache` registration and deregistration on install and removal.
+- **Deployment target retargeting**: Patched the main Mach-O executable and all 7 bundled dynamic frameworks (`slirp`, `glib`, `EGL`, `GLESv2`, `epoxy`, `virglrenderer.1`, `MoltenVK`) to an iOS 16.0 minimum deployment target using `vtool`.
+- **UI backports**: Replaced iOS 18-specific SwiftUI tab and scene modifiers with iOS 16-compatible equivalents for stable rendering on iPadOS 16.1.1.
+- **Engine preservation**: The underlying Rust virtualization engine (`crate-core`), translation cache (`crate-jit`), VirtIO subsystems (`crate-devices`), SLIRP userspace networking, and virglrenderer GPU pipelines are preserved without modification to their core emulation logic.
 
 ---
 
-## Repository Structure
+## Requirements
 
-```text
-crate-dopamine-rootless/
-├── README.md               # Main project overview and documentation
-├── LICENSE                 # Mozilla Public License Version 2.0 (MPL-2.0)
-├── NOTICE                  # Upstream copyright and third-party notices
-├── AUTHORS.md              # Attribution of upstream authors and port maintainers
-├── CHANGELOG.md            # Version release notes and changes
-├── CONTRIBUTING.md         # Contribution and issue reporting guidelines
-├── SECURITY.md             # Security policy and vulnerability disclosure
-├── .gitignore              # Git ignore rules for macOS, Xcode, Rust, and Python
-├── .gitattributes          # Line ending and binary file handling
-├── docs/
-│   ├── installation.md     # Detailed installation instructions (Sileo, Zebra, dpkg)
-│   ├── compatibility.md    # Hardware profiles, Jetsam memory, and OS support matrix
-│   ├── build.md            # Step-by-step instructions to compile from source
-│   ├── troubleshooting.md  # Common errors, crash logs, and diagnostic steps
-│   └── credits.md          # Comprehensive acknowledgments and upstream repositories
-├── packaging/
-│   ├── Crate.entitlements  # Jailbreak entitlements for dynamic codesigning
-│   └── DEBIAN/
-│       ├── control         # Debian package metadata
-│       ├── postinst        # Installation hook running uicache -p
-│       └── prerm           # Uninstallation hook running uicache -u
-├── scripts/
-│   ├── build_crate.sh      # Complete automated build and packaging pipeline
-│   ├── package_deb.py      # Debian archive packager targeting /var/jb/
-│   └── verify_suite.py     # Automated audit and integrity verification script
-├── tests/
-│   ├── jit_test.c          # Standalone verification for in-process W^X memory
-│   └── verify_suite.py     # Static analysis and package validation tests
-├── build/
-│   ├── crate-dopamine-rootless_1.0.0_iphoneos-arm.deb  # Release package
-│   ├── checksums.txt       # SHA-256 and MD5 cryptographic hashes
-│   └── verification_report.md # Comprehensive test results
-└── src/                    # Ported application source tree
-    ├── Crate.xcodeproj     # Xcode project file
-    ├── project.yml         # XcodeGen specification
-    ├── Frameworks/         # Retargeted dynamic frameworks (minos 16.0)
-    ├── Resources/          # Application assets, icon catalogs, and entitlements
-    ├── Scripts/            # Upstream asset fetch and build helpers
-    └── Sources/            # Swift & C application source code
-```
+- **Jailbreak**: Dopamine 2.x or Dopamine RootHide
+- **Operating system**: iOS / iPadOS 16.0 – 16.5.1
+- **Architecture**: 64-bit ARM (`arm64` / `arm64e`)
+- **Package manager**: Sileo, Zebra, or terminal access (`dpkg`)
+- **Memory**: 4 GB device RAM minimum recommended (e.g. iPad Pro 2018 A12X or later)
 
 ---
 
-## Quick Installation
+## Installation
 
-### Method 1: Sileo or Zebra (Recommended)
-1. Download `crate-dopamine-rootless_1.0.0_iphoneos-arm.deb` from the [build directory](build/) or releases.
-2. Transfer to your iOS device via AirDrop, Filza, or local web server.
-3. Open the file in **Sileo** or **Zebra** and tap **Install**.
-4. The package manager installs the payload into `/var/jb/Applications/Crate.app` and updates SpringBoard icons.
+Download the latest `.deb` package from [Releases](https://github.com/nekoruki04/crate-dopamine-rootless/releases/latest).
 
-### Method 2: Command Line (SSH or Mobile Terminal)
+### Option A: Sileo or Zebra (Recommended)
+
+1. Download or transfer `crate-dopamine-rootless_1.0.0_iphoneos-arm.deb` to your device (via AirDrop, Safari, or Filza).
+2. Open the file in **Sileo** or **Zebra** and tap **Install**.
+3. Confirm installation. The maintainer script will register the application with SpringBoard (`uicache`).
+
+### Option B: Terminal (SSH)
+
 ```bash
 # Transfer package to device
-scp build/crate-dopamine-rootless_1.0.0_iphoneos-arm.deb mobile@<DEVICE_IP>:/var/mobile/
+scp crate-dopamine-rootless_1.0.0_iphoneos-arm.deb mobile@<device-ip>:/var/mobile/
 
-# Install via dpkg on the device
-ssh mobile@<DEVICE_IP> "sudo dpkg -i /var/mobile/crate-dopamine-rootless_1.0.0_iphoneos-arm.deb"
+# Install via dpkg
+ssh mobile@<device-ip> "sudo dpkg -i /var/mobile/crate-dopamine-rootless_1.0.0_iphoneos-arm.deb"
 ```
 
-For detailed setup and removal instructions, refer to [docs/installation.md](docs/installation.md).
-
----
-
-## How Autonomous JIT Works
-
-Standard iOS enforces strict code signing policies: memory pages cannot be simultaneously writable and executable ($W \oplus X$), and mapping executable memory requires explicit debugger approval. Upstream Crate required a tethered companion app (StikJIT) to attach an external debugger over a local VPN tunnel.
-
-Under **Dopamine Rootless**:
-1. The jailbreak kernel and BaseBin grant the target application process the `CS_DEBUGGED` code signing status.
-2. The package embeds the following entitlements:
-   - `dynamic-codesigning` (`<true/>`)
-   - `com.apple.private.cs.debugger` (`<true/>`)
-   - `get-task-allow` (`<true/>`)
-3. The virtualization translation engine allocates translation blocks, writes dynamic AArch64 machine instructions, and toggles execution permission via standard `mprotect(PROT_READ | PROT_EXEC)` without encountering kernel permission traps.
-
----
-
-## Release Verification & Checksums
-
-The release package has been audited and verified:
-
-| File | Size (Bytes) | SHA-256 Checksum |
-|---|---|---|
-| `crate-dopamine-rootless_1.0.0_iphoneos-arm.deb` | `8,099,324` | `55332cee414faa2df6f29691aba11b0c8a01ea03eb095c2aad5fa5dba8d3512d` |
-
-To verify local package integrity:
+If the icon does not appear on your Home Screen immediately:
 ```bash
-shasum -a 256 build/crate-dopamine-rootless_1.0.0_iphoneos-arm.deb
+/var/jb/usr/bin/uicache -p /var/jb/Applications/Crate.app
 ```
 
-Run the automated verification suite:
-```bash
-python3 tests/verify_suite.py
-```
+For uninstallation instructions, see [docs/installation.md](docs/installation.md).
 
 ---
 
 ## Building from Source
 
-To compile the application and build the `.deb` package on macOS:
+### Prerequisites
+
+- macOS 14+ with Xcode 15 or 16
+- iPhoneOS SDK (16.0+)
+- Rust toolchain with target `aarch64-apple-ios`
+- `ldid` and `vtool`
+- Python 3
+
+### Automated Build
 
 ```bash
-# 1. Clone repository
-git clone https://github.com/<your-username>/crate-dopamine-rootless.git
+# Clone the repository
+git clone https://github.com/nekoruki04/crate-dopamine-rootless.git
 cd crate-dopamine-rootless
 
-# 2. Run automated build script
+# Build application and generate .deb package
 ./scripts/build_crate.sh
+
+# Run verification suite
+python3 tests/verify_suite.py
 ```
 
-For custom build instructions and Rust engine compilation, see [docs/build.md](docs/build.md).
+For instructions on compiling the Rust virtualization static library (`libcrate_ffi.a`) from source, see [docs/build.md](docs/build.md).
 
 ---
 
-## Credits & License
+## Compatibility
 
-### Upstream Authors
+Hardware and environment compatibility is categorized strictly by verification status.
+
+### Tested Targets
+
+| Device | iOS/iPadOS | Jailbreak | Status | Notes |
+|---|---|---|---|---|
+| iPad Pro 11-inch (1st Gen, 2018, A12X) | iPadOS 16.1.1 | Dopamine RootHide / Rootless | Working | Verified on physical device. In-process JIT, rootless install, VM boot, and verification suite all pass. |
+
+### Untested Targets
+
+| Device | iOS/iPadOS | Jailbreak | Status | Notes |
+|---|---|---|---|---|
+| iPhone 11 Pro (A13) | iOS 16.0 – 16.5.1 | Dopamine Rootless | Untested | Shares ARM64e architecture and deployment target; requires $\le 2\text{ GB}$ guest RAM. |
+| Other Apple Silicon (A12–A16, M-series) | iOS 16.0 – 16.5.1 | Dopamine Rootless | Untested | Binary slice is compatible, but not tested on physical hardware. |
+
+See [docs/compatibility.md](docs/compatibility.md) for detailed memory constraints and architecture notes.
+
+---
+
+## Known Limitations
+
+- **RAM and Jetsam limits**: On devices with 4 GB of total RAM, allocating more than 2 GB (2048 MB) to a guest VM will trigger Jetsam memory kills from the iOS kernel. Keep guest RAM at 1536 MB – 2048 MB.
+- **No hardware hypervisor**: Apple's Hypervisor framework (`/dev/hypervisor`) is not exposed on iOS. Crate uses dynamic binary translation (`crate-jit`), which incurs an emulation overhead compared to native hypervisor virtualization.
+- **iOS version range**: Tested on iOS 16.1.1. iOS 17.4+ introduced additional debugger memory traps (`brk #0x69`) that may affect direct JIT execution without further patches.
+- **3D graphics**: 3D acceleration routes guest OpenGL commands through `virglrenderer` and MoltenVK onto Metal. Complex 3D rendering may throttle under sustained thermal load.
+
+See [docs/troubleshooting.md](docs/troubleshooting.md) for crash diagnosis and common fixes.
+
+---
+
+## Credits
+
 - **Antonio Mendez** ([@oneamendez](https://github.com/oneamendez)) — Author of [Crate iOS](https://github.com/oneamendez/crate-ios) and [Crate](https://github.com/oneamendez/crate).
 - **Lars Fröder** ([@opa334](https://github.com/opa334)) — Author of [Dopamine](https://github.com/opa334/Dopamine).
 - **RootHide Team** ([@roothide](https://github.com/roothide)) — Authors of [Dopamine RootHide](https://github.com/roothide/Dopamine-roothide).
+- **Third-party libraries**: SwiftTerm (MIT), GLib (LGPL-2.1+), libslirp (BSD-3-Clause), MoltenVK (Apache-2.0), virglrenderer (MIT), libepoxy (MIT), ANGLE (BSD-3-Clause). See [NOTICE](NOTICE) and [src/THIRD_PARTY_NOTICES.md](src/THIRD_PARTY_NOTICES.md) for full notices.
 
-### License
-- The primary codebase of Crate is licensed under the **Mozilla Public License Version 2.0 (MPL-2.0)**. See [LICENSE](LICENSE) for the full license text.
-- Third-party components maintain their original upstream licenses (MIT, BSD-3-Clause, Apache-2.0, LGPL-2.1). Refer to [NOTICE](NOTICE), [docs/credits.md](docs/credits.md), and [src/THIRD_PARTY_NOTICES.md](src/THIRD_PARTY_NOTICES.md) for details.
+Full acknowledgments are detailed in [docs/credits.md](docs/credits.md).
+
+---
+
+## License
+
+This project is licensed under the Mozilla Public License Version 2.0 (MPL-2.0). See [LICENSE](LICENSE) for the full license text.

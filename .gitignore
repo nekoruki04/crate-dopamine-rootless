@@ -12,6 +12,10 @@ src/DerivedData/
 *.xcuserstate
 *.hmap
 
+# Debian Packages (distributed via GitHub Releases)
+*.deb
+build/*.deb
+
 # SwiftPM
 .build/
 .swiftpm/

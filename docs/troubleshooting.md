@@ -1,67 +1,57 @@
-# Troubleshooting & Diagnostics
+# Troubleshooting
 
-This document provides diagnostic solutions for common issues encountered during installation, execution, or VM operation in Dopamine Rootless environments.
+Diagnostic guidance for common issues in Dopamine Rootless environments.
 
 ---
 
-## 1. Installation & SpringBoard Icon Issues
+## 1. App Icon Not Appearing on SpringBoard
 
-### Problem: Application icon does not appear on SpringBoard after installation
-- **Cause**: SpringBoard icon cache (`uicache`) did not refresh automatically.
+- **Cause**: SpringBoard icon cache did not register the new bundle.
 - **Solution**:
-  Run `uicache` manually via SSH or a mobile terminal:
+  Run `uicache` manually from a terminal or SSH session:
   ```bash
   /var/jb/usr/bin/uicache -p /var/jb/Applications/Crate.app
   ```
-  If the icon still does not show, perform a user space reboot:
+  If it still does not appear, restart user space:
   ```bash
   /var/jb/usr/bin/launchctl reboot userspace
   ```
 
-### Problem: `dpkg: error: cannot access archive`
-- **Cause**: The transferred `.deb` file is corrupted or incomplete.
-- **Solution**:
-  Verify the SHA-256 checksum of your `.deb` file against `build/checksums.txt`:
-  ```bash
-  shasum -a 256 crate-dopamine-rootless_1.0.0_iphoneos-arm.deb
-  # Expected: 55332cee414faa2df6f29691aba11b0c8a01ea03eb095c2aad5fa5dba8d3512d
-  ```
-
 ---
 
-## 2. Launch & Crash Diagnostics
+## 2. Crash on Launch (`EXC_CRASH` / `SIGKILL`)
 
-### Problem: App crashes instantly on launch with `EXC_CRASH (SIGKILL)` or `EXC_BAD_ACCESS`
-- **Check 1: Entitlements and Code Signing**
-  Verify that the main binary has valid jailbreak pseudo-signatures:
+- **Check Entitlements**:
+  Inspect the entitlements embedded in the installed binary:
   ```bash
   ldid -e /var/jb/Applications/Crate.app/Crate
   ```
-  Ensure `dynamic-codesigning` is set to `<true/>`.
-- **Check 2: Minimum OS Mismatch**
-  If testing on iOS 16.1.1, inspect the Mach-O load commands:
+  Ensure `dynamic-codesigning` is set to `<true/>` and `com.apple.private.cs.debugger` is present.
+- **Check Deployment Target**:
+  Verify the binary load commands:
   ```bash
   vtool -show-build /var/jb/Applications/Crate.app/Crate
   ```
   Confirm `minos` is `16.0`.
 
-### Problem: Guest VM terminates abruptly under load (Jetsam Crash)
-- **Cause**: Out-of-memory kill by kernel Jetsam daemon.
+---
+
+## 3. Virtual Machine Terminates Unexpectedly (Jetsam Kill)
+
+- **Cause**: Memory limit exceeded. On 4 GB devices (iPad Pro 2018, iPhone 11 Pro), allocating $> 2\text{ GB}$ to a guest VM leaves insufficient memory for iOS background daemons, causing the kernel Jetsam daemon to terminate Crate.
 - **Diagnostics**:
-  Inspect the crash logs in `Settings` -> `Privacy & Security` -> `Analytics & Improvements` -> `Analytics Data` for `JetsamEvent-*`.
+  Check `Settings` -> `Privacy & Security` -> `Analytics & Improvements` -> `Analytics Data` for `JetsamEvent-*` crash logs.
 - **Solution**:
-  Lower the guest RAM allocation in the machine settings to **1536 MB** or **2048 MB**. Avoid allocating greater than 2.5 GB on 4 GB physical RAM devices.
+  In Crate machine settings, reduce guest RAM to **1536 MB** or **2048 MB**.
 
 ---
 
-## 3. JIT & Virtualization Issues
+## 4. JIT Execution Errors
 
-### Problem: Linux kernel stops or hangs during boot
 - **Check JIT Status**:
-  Inside Crate, navigate to **Settings** -> **JIT Status**.
-  Confirm that JIT shows as active.
-- **Test Executable Memory**:
-  You can run the standalone verification tool to confirm whether W^X / memory protection transitions succeed on your device:
+  Inside Crate, navigate to **Settings** -> **JIT Status** to confirm that direct execution is active.
+- **Verify W^X Memory Transitions**:
+  Run the standalone test tool to verify writable-to-executable memory transitions:
   ```bash
   gcc -arch arm64 -o jit_test tests/jit_test.c
   ldid -S"packaging/Crate.entitlements" jit_test
@@ -70,11 +60,8 @@ This document provides diagnostic solutions for common issues encountered during
 
 ---
 
-## 4. Network & Internet Connectivity in Guest
+## 5. Guest Networking Issues
 
-### Problem: Guest Linux system has no network or internet connection
-- **Cause**: Userspace SLIRP networking initialization failure.
-- **Solution**:
-  1. Ensure the host iOS device is connected to Wi-Fi or cellular data.
-  2. Verify that guest network configuration uses DHCP.
-  3. Ensure guest nameserver is set to `10.0.2.3` (SLIRP default DNS forwarder).
+- Ensure the host iOS device is connected to Wi-Fi or cellular data.
+- Verify guest interface is configured for DHCP.
+- Ensure the guest DNS nameserver is set to `10.0.2.3` (SLIRP default).

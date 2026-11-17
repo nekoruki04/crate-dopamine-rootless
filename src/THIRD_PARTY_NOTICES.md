@@ -1,8 +1,8 @@
 # Third-party notices
 
-crate's own code is MPL-2.0 ([LICENSE](LICENSE)). The app also carries the code below,
+crate's own code is MPL-2.0 ([LICENSE](../LICENSE)). The app also carries the code below,
 each under its own license, whose text follows as that project's source states it.
-Where a project is MPL-2.0, its license is the same text as [LICENSE](LICENSE). Written by
+Where a project is MPL-2.0, its license is the same text as [LICENSE](../LICENSE). Written by
 `Scripts/third-party-notices.py`; [docs/PROVENANCE.md](docs/PROVENANCE.md) says how each
 piece is fetched or built.
 
