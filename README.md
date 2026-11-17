@@ -25,7 +25,7 @@ Run Linux VMs on iPhone and iPad for Jailbreak with native in-process JIT and no
 ## Requirements
 
 - **Jailbreak**: Dopamine 2 (2.0 – 2.4.x), Dopamine 3 (3.0 – 3.0.x), or Dopamine RootHide
-- **Operating system**: iOS / iPadOS 16.0 – 16.5.1
+- **Operating system**: iOS / iPadOS 16.0 – 17.3.1 (iOS 16.0 minimum deployment target)
 - **Architecture**: 64-bit ARM (`arm64` / `arm64e`)
 - **Package manager**: Sileo, Zebra, or terminal access (`dpkg`)
 - **Memory**: 4 GB device RAM minimum recommended (e.g. iPad Pro 2018 A12X or later)
@@ -113,8 +113,8 @@ Environment and hardware compatibility is categorized strictly by verification s
 
 | Device | iOS/iPadOS | Jailbreak | Status | Notes |
 |---|---|---|---|---|
-| iPhone 11 Pro (A13) | iOS 16.0 – 16.5.1 | Dopamine 2 / Dopamine 3 | Untested | Shares ARM64e architecture and deployment target; requires $\le 2\text{ GB}$ guest RAM. |
-| Other Apple Silicon (A12–A16, M-series) | iOS 16.0 – 16.5.1 | Dopamine 2 / Dopamine 3 | Untested | Binary slice is compatible, but not tested on physical hardware. |
+| iPhone 11 Pro (A13) | iOS 16.0 – 17.3.1 | Dopamine 2 / Dopamine 3 | Untested | Shares ARM64e architecture and deployment target; requires $\le 2\text{ GB}$ guest RAM. |
+| Other Apple Silicon (A12–A16, M-series) | iOS 16.0 – 17.3.1 | Dopamine 2 / Dopamine 3 | Untested | Binary slice is compatible, but not tested on physical hardware. |
 
 See [docs/compatibility.md](docs/compatibility.md) for detailed memory constraints and architecture notes.
 

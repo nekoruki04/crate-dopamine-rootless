@@ -37,8 +37,8 @@ Compatibility is classified strictly into tested and untested targets.
 
 | Device | Processor | Architecture | Target OS | Expected Status | Notes |
 |---|---|---|---|---|---|
-| iPhone 11 Pro | Apple A13 | `arm64e` | iOS 16.0 – 16.5.1 | Untested | Shares ARM64e architecture and deployment target; requires $\le 2\text{ GB}$ guest RAM. |
-| Other Apple Silicon (A12–A16, M1/M2) | Various | `arm64e` | iOS 16.0 – 16.5.1 | Untested | Binary slice is compatible, but unverified on physical hardware. |
+| iPhone 11 Pro | Apple A13 | `arm64e` | iOS 16.0 – 17.3.1 | Untested | Shares ARM64e architecture and deployment target; requires $\le 2\text{ GB}$ guest RAM. |
+| Other Apple Silicon (A12–A16, M1/M2) | Various | `arm64e` | iOS 16.0 – 17.3.1 | Untested | Binary slice is compatible, but unverified on physical hardware. |
 | Pre-A12 Devices (iPhone X, 8) | Apple A11 | `arm64` | iOS 15.0 – 16.7 | Untested | Uses checkm8/palera1n rather than Dopamine; binary slice contains `arm64`. |
 
 ---

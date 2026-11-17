@@ -1,14 +1,14 @@
 # Contributing
 
-Contributions to the Crate Dopamine Rootless port are welcome.
+Contributions to the Crate Jailbreak port are welcome.
 
 ---
 
 ## Guidelines
 
-- **Focus**: Bug fixes, performance improvements, and compatibility patches for rootless jailbreaks.
+- **Focus**: Bug fixes, performance improvements, and compatibility patches for rootless jailbreaks (Dopamine 2, Dopamine 3, RootHide).
 - **Rootless Paths**: Never hardcode rootful paths (`/Applications`, `/Library/MobileSubstrate`). Always follow `/var/jb/` conventions where jailbreak resources are accessed.
-- **Compatibility**: Ensure code compiles and runs on iOS 16.0 – 16.5.1 on `arm64e` and `arm64` devices.
+- **Compatibility**: Ensure code compiles and runs on iOS 16.0 – 17.3.1 on `arm64e` and `arm64` devices.
 - **Testing**: Run `python3 tests/verify_suite.py` before opening a pull request.
 - **Scope**: Keep changes minimal and focused. Do not reintroduce tethered companion app workflows.
 
