@@ -1,10 +1,10 @@
 Package: com.amendez.crate
-Name: Crate
+Name: Crate Jailbreak
 Version: 1.0.0
 Architecture: iphoneos-arm
-Description: Linux virtualization environment for iOS / iPadOS on Dopamine Rootless
-Maintainer: amendez & Dopamine Rootless Port
-Author: amendez
+Description: Run Linux VMs on iPhone and iPad for Jailbreak
+Maintainer: nekoruki <nekoruki04@users.noreply.github.com>
+Author: amendez & nekoruki
 Section: Utilities
 Priority: optional
 Depends: firmware (>= 16.0)

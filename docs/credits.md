@@ -38,9 +38,15 @@ For complete license texts of third-party dependencies, see [src/THIRD_PARTY_NOT
 
 ---
 
+## Port Maintainer
+
+- **nekoruki** ([@nekoruki04](https://github.com/nekoruki04)) — Crate Jailbreak port maintainer. Developed the rootless jailbreak port, direct in-process JIT enablement, iOS 16 retargeting, packaging, and compatibility for Dopamine 2 and Dopamine 3 environments.
+
+---
+
 ## Port Modifications
 
-The Dopamine Rootless porting work includes:
+The Crate Jailbreak porting work includes:
 - Removing tethered companion helper processes (StikJIT, StikDebug, LocalDevVPN, pairing profiles).
 - Direct in-process JIT enablement via `mprotect` and jailbreak task debugging capabilities.
 - Backporting Swift and SwiftUI view hierarchies for execution on iOS 16.0 – 16.1.1.

@@ -16,11 +16,6 @@
 
 ---
 
-## Port Maintainers
+## Port Maintainer
 
-The Dopamine Rootless port was developed as a derivative work to adapt Crate iOS for rootless jailbreak environments:
-
-- **Rootless Packaging**: Implemented payload staging under `/var/jb/Applications/Crate.app/`, package generation via `scripts/package_deb.py`, and `uicache` hooks.
-- **Direct JIT**: Removed companion app requirements and implemented in-process executable memory transitions under Dopamine's `CS_DEBUGGED` execution environment.
-- **iOS 16 Retargeting**: Retargeted main binary and frameworks to `minos 16.0` and backported SwiftUI tab views.
-- **Verification**: Created automated validation suite (`tests/verify_suite.py`).
+- **nekoruki** ([@nekoruki04](https://github.com/nekoruki04)) — Crate Jailbreak port maintainer. Developed the rootless jailbreak port, direct in-process JIT enablement, iOS 16 retargeting, packaging, and compatibility for Dopamine 2 and Dopamine 3 environments.

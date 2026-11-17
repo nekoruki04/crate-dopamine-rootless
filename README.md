@@ -1,14 +1,14 @@
-# Crate (Dopamine Rootless)
+# Crate Jailbreak
 
-A rootless iOS jailbreak port of [Crate](https://github.com/oneamendez/crate-ios) that runs Linux virtual machines directly on iOS with in-process JIT and no companion app.
+Run Linux VMs on iPhone and iPad for Jailbreak with native in-process JIT and no companion app.
 
 ---
 
 ## Overview
 
-[Crate](https://github.com/oneamendez/crate-ios) is an iOS application that runs Linux virtual machines using a custom ARM64 dynamic binary translation engine (`crate-core`) and VirtIO devices. On stock iOS, executing JIT-compiled code requires an external debugger or a companion application (such as StikJIT) connected over a local VPN tunnel.
+[Crate](https://github.com/oneamendez/crate-ios) is an iOS application that runs Linux virtual machines directly on iOS and iPadOS using a custom ARM64 dynamic binary translation engine (`crate-core`) and VirtIO devices. On stock iOS, executing JIT-compiled code requires an external debugger or a companion application (such as StikJIT) connected over a local VPN tunnel.
 
-This port adapts Crate for rootless jailbreak environments running [Dopamine](https://github.com/opa334/Dopamine) or Dopamine RootHide on iOS 16. It enables direct in-process executable memory execution without companion apps or computer pairing, and packages the application as a standard rootless Debian package (`.deb`).
+**Crate Jailbreak** adapts Crate for jailbreak environments running [Dopamine](https://github.com/opa334/Dopamine) (Dopamine 2 and Dopamine 3) and Dopamine RootHide on iOS 16. It enables direct in-process executable memory execution without companion apps or computer pairing, and packages the application as a standard rootless Debian package (`.deb`).
 
 ---
 
@@ -133,6 +133,7 @@ See [docs/troubleshooting.md](docs/troubleshooting.md) for crash diagnosis and c
 
 ## Credits
 
+- **nekoruki** ([@nekoruki04](https://github.com/nekoruki04)) — Crate Jailbreak port maintainer.
 - **Antonio Mendez** ([@oneamendez](https://github.com/oneamendez)) — Author of [Crate iOS](https://github.com/oneamendez/crate-ios) and [Crate](https://github.com/oneamendez/crate).
 - **Lars Fröder** ([@opa334](https://github.com/opa334)) — Author of [Dopamine](https://github.com/opa334/Dopamine).
 - **RootHide Team** ([@roothide](https://github.com/roothide)) — Authors of [Dopamine RootHide](https://github.com/roothide/Dopamine-roothide).
