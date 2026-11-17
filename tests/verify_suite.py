@@ -263,7 +263,7 @@ def test_dopamine_version_matrix(app_dir):
         },
         "Dopamine 3": {
             "version_range": "3.0 - 3.0.x",
-            "supported_os": "iOS 15.0 - 17.3.1 (arm64e), iOS 15.0 - 18.7.1 (arm64)",
+            "supported_os": "iOS 15.0 - 17.3.1 (PPL/SPTM), iOS 15.0 - 18.7.1 / 26.0 - 26.0.1 (A12/A13), iOS 15.0 - 18.7.1 (arm64)",
             "basebin_hook": "hookd daemon + systemhook.dylib",
             "rootless_prefix": "/var/jb",
             "jit_primitive": "CS_DEBUGGED + cs_allow_invalid + txm_fork_fix",

@@ -25,7 +25,7 @@ Run Linux VMs on iPhone and iPad for Jailbreak with native in-process JIT and no
 ## Requirements
 
 - **Jailbreak**: Dopamine 2 (2.0 – 2.4.x), Dopamine 3 (3.0 – 3.0.x), or Dopamine RootHide
-- **Operating system**: iOS / iPadOS 16.0 – 17.3.1 (iOS 16.0 minimum deployment target)
+- **Operating system**: iOS / iPadOS 16.0 – 26.0.1 (iOS 16.0 minimum deployment target; Dopamine 3 supports up to iOS 18.7.1 on arm64 and 26.0 – 26.0.1 on A12/A13)
 - **Architecture**: 64-bit ARM (`arm64` / `arm64e`)
 - **Package manager**: Sileo, Zebra, or terminal access (`dpkg`)
 - **Memory**: 4 GB device RAM minimum recommended (e.g. iPad Pro 2018 A12X or later)
@@ -98,7 +98,7 @@ Environment and hardware compatibility is categorized strictly by verification s
 | Jailbreak | Compatibility Status | Notes |
 |---|---|---|
 | **Dopamine 2** (2.0 – 2.4.x) | Verified on Physical Device | Fully tested on iPad Pro 11" (2018, A12X, iPadOS 16.1.1). In-process JIT, rootless install, and VM boot verified. |
-| **Dopamine 3** (3.0 – 3.0.x) | Architecturally Supported | Shares `/var/jb` prefix, BaseBin conventions, `CS_DEBUGGED` execution, and `iphoneos-arm` packaging. Untested on physical device. |
+| **Dopamine 3** (3.0 – 3.0.x) | Architecturally Supported | Supports iOS 15.0 – 17.3.1 (PPL/SPTM), iOS 15.0 – 18.7.1 and 26.0 – 26.0.1 (A12/A13), and iOS 15.0 – 18.7.1 (arm64). Shares `/var/jb` prefix, BaseBin conventions, `CS_DEBUGGED` execution, and `iphoneos-arm` packaging. Untested on physical device. |
 | **Dopamine RootHide** | Verified on Physical Device | Fully tested on iPad Pro 11" (2018, A12X, iPadOS 16.1.1) in RootHide rootless mode. |
 
 ### Hardware Targets
@@ -113,8 +113,8 @@ Environment and hardware compatibility is categorized strictly by verification s
 
 | Device | iOS/iPadOS | Jailbreak | Status | Notes |
 |---|---|---|---|---|
-| iPhone 11 Pro (A13) | iOS 16.0 – 17.3.1 | Dopamine 2 / Dopamine 3 | Untested | Shares ARM64e architecture and deployment target; requires $\le 2\text{ GB}$ guest RAM. |
-| Other Apple Silicon (A12–A16, M-series) | iOS 16.0 – 17.3.1 | Dopamine 2 / Dopamine 3 | Untested | Binary slice is compatible, but not tested on physical hardware. |
+| iPhone 11 Pro (A13) | iOS 16.0 – 26.0.1 | Dopamine 2 / Dopamine 3 | Untested | Shares ARM64e architecture and deployment target; requires $\le 2\text{ GB}$ guest RAM. Supported up to 26.0.1 via Dopamine 3. |
+| Other Apple Silicon (A12–A16, M-series) | iOS 16.0 – 18.7.1 / 26.0.1 | Dopamine 2 / Dopamine 3 | Untested | Binary slice is compatible, but not tested on physical hardware. |
 
 See [docs/compatibility.md](docs/compatibility.md) for detailed memory constraints and architecture notes.
 

@@ -9,7 +9,7 @@ This document details hardware, operating system, and memory constraints for Cra
 | Environment | Supported OS Range | Architecture | Verification Status | Notes |
 |---|---|---|---|---|
 | **Dopamine 2** (2.0 – 2.4.x) | iOS 15.0 – 16.5.1 (`arm64e`)<br>iOS 15.0 – 16.6.1 (`arm64`) | `arm64`, `arm64e` | **Verified on Physical Device** | Tested on iPad Pro 11" 2018 (A12X, iPadOS 16.1.1). Direct JIT, rootless installation, and VM boot verified. |
-| **Dopamine 3** (3.0 – 3.0.x) | iOS 15.0 – 17.3.1 (`arm64e`)<br>iOS 15.0 – 18.7.1 (`arm64`) | `arm64`, `arm64e` | **Architecturally Supported** | Uses shared `/var/jb` rootless prefix, identical BaseBin paths (`jbctl`), and `CS_DEBUGGED` primitives. Untested on physical device. |
+| **Dopamine 3** (3.0 – 3.0.x) | iOS 15.0 – 17.3.1 (`arm64e`)<br>iOS 15.0 – 18.7.1, 26.0 – 26.0.1 (`A12/A13`)<br>iOS 15.0 – 18.7.1 (`arm64`) | `arm64`, `arm64e` | **Architecturally Supported** | Uses shared `/var/jb` rootless prefix, identical BaseBin paths (`jbctl`), and `CS_DEBUGGED` primitives. Untested on physical device. |
 | **Dopamine RootHide** | iOS 15.0 – 16.5.1 | `arm64`, `arm64e` | **Verified on Physical Device** | Tested on iPad Pro 11" 2018 (A12X, iPadOS 16.1.1) in RootHide rootless mode. |
 
 ---
@@ -37,9 +37,9 @@ Compatibility is classified strictly into tested and untested targets.
 
 | Device | Processor | Architecture | Target OS | Expected Status | Notes |
 |---|---|---|---|---|---|
-| iPhone 11 Pro | Apple A13 | `arm64e` | iOS 16.0 – 17.3.1 | Untested | Shares ARM64e architecture and deployment target; requires $\le 2\text{ GB}$ guest RAM. |
-| Other Apple Silicon (A12–A16, M1/M2) | Various | `arm64e` | iOS 16.0 – 17.3.1 | Untested | Binary slice is compatible, but unverified on physical hardware. |
-| Pre-A12 Devices (iPhone X, 8) | Apple A11 | `arm64` | iOS 15.0 – 16.7 | Untested | Uses checkm8/palera1n rather than Dopamine; binary slice contains `arm64`. |
+| iPhone 11 Pro | Apple A13 | `arm64e` | iOS 16.0 – 26.0.1 | Untested | Shares ARM64e architecture and deployment target; requires $\le 2\text{ GB}$ guest RAM. Supported up to 26.0.1 via Dopamine 3. |
+| Other Apple Silicon (A12–A16, M1/M2) | Various | `arm64e` | iOS 16.0 – 18.7.1 / 26.0.1 | Untested | Binary slice is compatible, but unverified on physical hardware. |
+| Pre-A12 Devices (iPhone X, 8) | Apple A11 | `arm64` | iOS 15.0 – 18.7.1 | Untested | Uses Dopamine 3 (iOS 15.0 – 18.7.1 on arm64) or checkm8/palera1n; binary slice contains `arm64`. |
 
 ---
 
@@ -48,7 +48,7 @@ Compatibility is classified strictly into tested and untested targets.
 ```
 ┌─────────────────────────────────┐       ┌─────────────────────────────────┐
 │           Dopamine 2            │       │           Dopamine 3            │
-│       (iOS 15.0 – 16.5.1)       │       │       (iOS 15.0 – 17.3.1)       │
+│       (iOS 15.0 – 16.5.1)       │       │    (iOS 15.0 – 18.7.1/26.0.1)   │
 ├─────────────────────────────────┤       ├─────────────────────────────────┤
 │ • Exploits: kfd / multicast     │       │ • Exploits: DarkSword / Titan   │
 │ • BaseBin: launchdhook          │       │ • BaseBin: hookd daemon         │
