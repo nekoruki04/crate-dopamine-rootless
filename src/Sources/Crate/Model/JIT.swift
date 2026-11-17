@@ -6,17 +6,18 @@ import Foundation
 
 /// How Crate gets JIT turned on for itself.
 enum JITMethod: String, CaseIterable, Identifiable {
-    case nativeRootHide
+    case dopamineNative = "dopamineNative"
 
     var id: Self { self }
 
     var title: String {
         switch self {
-        case .nativeRootHide: "Native RootHide JIT"
+        case .dopamineNative:
+            "Dopamine Native JIT (\(DopamineEnvironment.currentFlavor))"
         }
     }
 
-    static let standard = Self.nativeRootHide
+    static let standard = Self.dopamineNative
 }
 
 /// The settings Crate keeps in UserDefaults, by key, so every `@AppStorage`

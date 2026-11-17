@@ -24,7 +24,7 @@ This port adapts Crate for rootless jailbreak environments running [Dopamine](ht
 
 ## Requirements
 
-- **Jailbreak**: Dopamine 2.x or Dopamine RootHide
+- **Jailbreak**: Dopamine 2 (2.0 – 2.4.x), Dopamine 3 (3.0 – 3.0.x), or Dopamine RootHide
 - **Operating system**: iOS / iPadOS 16.0 – 16.5.1
 - **Architecture**: 64-bit ARM (`arm64` / `arm64e`)
 - **Package manager**: Sileo, Zebra, or terminal access (`dpkg`)
@@ -91,20 +91,30 @@ For instructions on compiling the Rust virtualization static library (`libcrate_
 
 ## Compatibility
 
-Hardware and environment compatibility is categorized strictly by verification status.
+Environment and hardware compatibility is categorized strictly by verification status.
 
-### Tested Targets
+### Jailbreak Environment Status
+
+| Jailbreak | Compatibility Status | Notes |
+|---|---|---|
+| **Dopamine 2** (2.0 – 2.4.x) | Verified on Physical Device | Fully tested on iPad Pro 11" (2018, A12X, iPadOS 16.1.1). In-process JIT, rootless install, and VM boot verified. |
+| **Dopamine 3** (3.0 – 3.0.x) | Architecturally Supported | Shares `/var/jb` prefix, BaseBin conventions, `CS_DEBUGGED` execution, and `iphoneos-arm` packaging. Untested on physical device. |
+| **Dopamine RootHide** | Verified on Physical Device | Fully tested on iPad Pro 11" (2018, A12X, iPadOS 16.1.1) in RootHide rootless mode. |
+
+### Hardware Targets
+
+#### Tested Targets
 
 | Device | iOS/iPadOS | Jailbreak | Status | Notes |
 |---|---|---|---|---|
-| iPad Pro 11-inch (1st Gen, 2018, A12X) | iPadOS 16.1.1 | Dopamine RootHide / Rootless | Working | Verified on physical device. In-process JIT, rootless install, VM boot, and verification suite all pass. |
+| iPad Pro 11-inch (1st Gen, 2018, A12X) | iPadOS 16.1.1 | Dopamine RootHide / Dopamine 2 | Working | Verified on physical device. In-process JIT, rootless install, VM boot, and verification suite all pass. |
 
-### Untested Targets
+#### Untested Targets
 
 | Device | iOS/iPadOS | Jailbreak | Status | Notes |
 |---|---|---|---|---|
-| iPhone 11 Pro (A13) | iOS 16.0 – 16.5.1 | Dopamine Rootless | Untested | Shares ARM64e architecture and deployment target; requires $\le 2\text{ GB}$ guest RAM. |
-| Other Apple Silicon (A12–A16, M-series) | iOS 16.0 – 16.5.1 | Dopamine Rootless | Untested | Binary slice is compatible, but not tested on physical hardware. |
+| iPhone 11 Pro (A13) | iOS 16.0 – 16.5.1 | Dopamine 2 / Dopamine 3 | Untested | Shares ARM64e architecture and deployment target; requires $\le 2\text{ GB}$ guest RAM. |
+| Other Apple Silicon (A12–A16, M-series) | iOS 16.0 – 16.5.1 | Dopamine 2 / Dopamine 3 | Untested | Binary slice is compatible, but not tested on physical hardware. |
 
 See [docs/compatibility.md](docs/compatibility.md) for detailed memory constraints and architecture notes.
 

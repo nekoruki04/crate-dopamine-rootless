@@ -5,6 +5,7 @@ import tarfile
 import tempfile
 import subprocess
 import shutil
+import argparse
 
 def make_tar_gz(source_dir, output_file, is_control=False):
     with tarfile.open(output_file, "w:gz", format=tarfile.GNU_FORMAT) as tar:
@@ -56,14 +57,40 @@ def make_tar_gz(source_dir, output_file, is_control=False):
                     tar.addfile(tar_info)
 
 def main():
-    workspace = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    app_source = os.path.expanduser("~/Library/Developer/Xcode/DerivedData/Crate-crjdzcswotqhwafvpdsjtvyexgnc/Build/Products/Release-iphoneos/Crate.app")
-    debian_dir = os.path.join(workspace, "CrateRootless", "Packaging", "DEBIAN")
-    build_dir = os.path.join(workspace, "build")
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+    parser = argparse.ArgumentParser(description="Package Crate into Dopamine rootless .deb")
+    parser.add_argument("--app", help="Path to Crate.app", default=None)
+    parser.add_argument("--debian", help="Path to DEBIAN directory", default=None)
+    parser.add_argument("--entitlements", help="Path to entitlements plist", default=None)
+    parser.add_argument("--output", help="Output path for .deb package", default=None)
+    args = parser.parse_args()
+
+    app_source = args.app
+    if not app_source:
+        app_candidates = [
+            os.path.join(repo_root, "src", "DerivedData", "Build", "Products", "Release-iphoneos", "Crate.app"),
+            os.path.join(repo_root, "build", "DerivedData", "Build", "Products", "Release-iphoneos", "Crate.app"),
+            os.path.expanduser("~/Library/Developer/Xcode/DerivedData/Crate-crjdzcswotqhwafvpdsjtvyexgnc/Build/Products/Release-iphoneos/Crate.app")
+        ]
+        for c in app_candidates:
+            if os.path.isdir(c):
+                app_source = c
+                break
+
+    assert app_source and os.path.isdir(app_source), f"Built application bundle not found: {app_source}"
+
+    debian_dir = args.debian or os.path.join(repo_root, "packaging", "DEBIAN")
+    if not os.path.isdir(debian_dir):
+        # Fallback to workspace packaging
+        debian_dir = os.path.abspath(os.path.join(repo_root, "..", "CrateRootless", "Packaging", "DEBIAN"))
+    assert os.path.isdir(debian_dir), f"DEBIAN directory not found: {debian_dir}"
+
+    entitlements = args.entitlements or os.path.join(repo_root, "packaging", "Crate.entitlements")
+    build_dir = os.path.join(repo_root, "build")
     os.makedirs(build_dir, exist_ok=True)
     
-    primary_deb = os.path.join(build_dir, "crate-dopamine-rootless_1.0.0_iphoneos-arm.deb")
-    legacy_deb = os.path.join(build_dir, "crate-rootless_1.0.0_iphoneos-arm.deb")
+    primary_deb = os.path.abspath(args.output or os.path.join(build_dir, "crate-dopamine-rootless_1.0.0_iphoneos-arm.deb"))
     
     with tempfile.TemporaryDirectory() as tmpdir:
         staging_dir = os.path.join(tmpdir, "staging")
@@ -72,7 +99,7 @@ def main():
         os.makedirs(app_dest, exist_ok=True)
         
         print(f"[*] Copying {app_source} to {app_dest}...")
-        subprocess.check_call(["rsync", "-a", app_source + "/", app_dest + "/"])
+        subprocess.check_call(["rsync", "-a", app_source.rstrip("/") + "/", app_dest.rstrip("/") + "/"])
         
         # Verify and re-sign main binary and frameworks inside staging
         # Retarget main binary to minos 16.0 for iPadOS 16.1.1 compatibility
@@ -80,9 +107,9 @@ def main():
         print(f"[*] Setting minos to 16.0 on {crate_bin}...")
         subprocess.check_call(["vtool", "-set-build-version", "ios", "16.0", "18.5", "-replace", "-output", crate_bin, crate_bin])
         
-        entitlements = os.path.join(workspace, "src", "crate-ios", "Resources", "Crate.entitlements")
-        print(f"[*] Signing {crate_bin} with {entitlements}...")
-        subprocess.check_call(["ldid", f"-S{entitlements}", crate_bin])
+        if os.path.isfile(entitlements):
+            print(f"[*] Signing {crate_bin} with {entitlements}...")
+            subprocess.check_call(["ldid", f"-S{entitlements}", crate_bin])
         
         fw_dir = os.path.join(app_dest, "Frameworks")
         if os.path.isdir(fw_dir):
@@ -110,12 +137,8 @@ def main():
         if os.path.exists(primary_deb):
             os.remove(primary_deb)
         subprocess.check_call(["/usr/bin/ar", "-rc", primary_deb, debian_binary, control_tar, data_tar], cwd=tmpdir)
-        
-        # Also copy / link legacy name for full compatibility
-        shutil.copyfile(primary_deb, legacy_deb)
             
     print(f"[+] Package created successfully: {primary_deb} ({os.path.getsize(primary_deb)} bytes)")
-    print(f"[+] Legacy package alias: {legacy_deb}")
 
 if __name__ == "__main__":
     main()

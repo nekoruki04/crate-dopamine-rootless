@@ -7,12 +7,16 @@
 #include <errno.h>
 #include <libkern/OSCacheControl.h>
 #include <mach/mach.h>
+#include <spawn.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/sysctl.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+extern char **environ;
 
 #define CS_DEBUGGED 0x10000000
 #define CS_GET_TASK_ALLOW 0x00000004
@@ -44,6 +48,7 @@ bool crate_jailbreak_activate_jit(void) {
         return true;
     }
 
+    /* 1. Attempt in-process ptrace child self-attach cycle */
     pid_t target = getpid();
     pid_t child = fork();
     if (child == 0) {
@@ -57,6 +62,36 @@ bool crate_jailbreak_activate_jit(void) {
     } else if (child > 0) {
         int status = 0;
         waitpid(child, &status, 0);
+    }
+
+    if (crate_jit_cs_flags(&flags) && (flags & CS_DEBUGGED)) {
+        return true;
+    }
+
+    /* 2. Fallback: invoke jbctl proc_set_debugged if available under Dopamine 2/3 BaseBin */
+    const char *jbctl_paths[] = {
+        "/var/jb/basebin/jbctl",
+        "/var/jb/usr/bin/jbctl",
+        NULL
+    };
+
+    for (int i = 0; jbctl_paths[i]; i++) {
+        if (access(jbctl_paths[i], X_OK) == 0) {
+            char pid_str[32];
+            snprintf(pid_str, sizeof pid_str, "%d", target);
+            char *const argv[] = {
+                (char *)jbctl_paths[i],
+                "proc_set_debugged",
+                pid_str,
+                NULL
+            };
+            pid_t jbctl_pid;
+            if (posix_spawn(&jbctl_pid, jbctl_paths[i], NULL, NULL, argv, environ) == 0) {
+                int status = 0;
+                waitpid(jbctl_pid, &status, 0);
+            }
+            break;
+        }
     }
 
     if (crate_jit_cs_flags(&flags) && (flags & CS_DEBUGGED)) {

@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rootless Debian package generation installing to `/var/jb/Applications/Crate.app/`.
 - Maintainer scripts (`postinst`, `prerm`) managing SpringBoard icon registration via `uicache`.
 - Direct in-process JIT enablement leveraging `dynamic-codesigning` and `com.apple.private.cs.debugger` entitlements under Dopamine.
+- Version-aware jailbreak detection module (`DopamineEnvironment.swift`) detecting Dopamine 2, Dopamine 3, Dopamine RootHide, and generic rootless environments.
+- Dual-fallback JIT activation in `CodeRegion.c`: child `ptrace(PT_ATTACH)` self-attach cycle with `/var/jb/basebin/jbctl proc_set_debugged` fallback.
 - Deployment target retargeting to iOS 16.0 for the main executable and all 7 bundled dynamic frameworks.
 - Verification test suite (`tests/verify_suite.py`) validating package hierarchy, Mach-O architecture, load commands, code signatures, and entitlements.
 - C test utility (`tests/jit_test.c`) verifying writable-to-executable memory transitions.
