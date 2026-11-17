@@ -1,0 +1,46 @@
+Crate Dopamine Rootless
+Copyright (c) 2024-2026 Antonio Mendez and Crate iOS Contributors.
+Portions Copyright (c) 2026 Dopamine Rootless Port Contributors.
+
+This derivative product includes software developed by:
+- Antonio Mendez and contributors (Crate iOS and Crate Core Virtualization Engine):
+  https://github.com/oneamendez/crate-ios
+  https://github.com/oneamendez/crate
+  Licensed under Mozilla Public License Version 2.0 (MPL-2.0).
+
+- Lars Fröder (opa334) and Dopamine contributors (Dopamine Jailbreak):
+  https://github.com/opa334/Dopamine
+  Components licensed under GPLv3, BSD, and MIT.
+
+- RootHide Team (Dopamine RootHide):
+  https://github.com/roothide/Dopamine-roothide
+
+- Miguel de Icaza (SwiftTerm):
+  https://github.com/migueldeicaza/SwiftTerm
+  Licensed under MIT License.
+
+- The GNOME Project (GLib):
+  https://gitlab.gnome.org/GNOME/glib
+  Licensed under LGPL-2.1-or-later.
+
+- The FreeDesktop Project (libslirp):
+  https://gitlab.freedesktop.org/slirp/libslirp
+  Licensed under BSD-3-Clause.
+
+- The Khronos Group Inc. (MoltenVK, Vulkan-Headers, SPIRV):
+  https://github.com/KhronosGroup/MoltenVK
+  Licensed under Apache-2.0.
+
+- virglrenderer project (virglrenderer):
+  https://gitlab.freedesktop.org/virgl/virglrenderer
+  Licensed under MIT License.
+
+- libepoxy project (libepoxy):
+  https://github.com/anholt/libepoxy
+  Licensed under MIT License.
+
+- Google LLC (ANGLE):
+  https://chromium.googlesource.com/angle/angle
+  Licensed under BSD-3-Clause.
+
+For complete third-party licenses and component notices, refer to src/THIRD_PARTY_NOTICES.md and docs/credits.md.

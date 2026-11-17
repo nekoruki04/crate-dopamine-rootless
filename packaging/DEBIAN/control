@@ -1,0 +1,12 @@
+Package: com.amendez.crate
+Name: Crate
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Linux virtualization environment for iOS / iPadOS on Dopamine Rootless
+Maintainer: amendez & Dopamine Rootless Port
+Author: amendez
+Section: Utilities
+Priority: optional
+Depends: firmware (>= 16.0)
+Installed-Size: 32768
+Tag: role::hacker, purpose::console

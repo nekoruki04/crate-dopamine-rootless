@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- The middle window, showing aTerm's prompt, with its lights at the right of the title bar. -->
+  <g transform="translate(262 222)">
+    <rect width="500" height="420" rx="40" fill="#1C1C1E"/>
+    <path d="M0 80 V40 Q0 0 40 0 H460 Q500 0 500 40 V80 Z" fill="#48484A"/>
+    <circle cx="328" cy="40.0" r="24" fill="#FEBC2E" stroke="#7A1F18" stroke-opacity="0.4" stroke-width="3"/>
+    <circle cx="390" cy="40.0" r="24" fill="#28C840" stroke="#7A1F18" stroke-opacity="0.4" stroke-width="3"/>
+    <circle cx="452" cy="40.0" r="24" fill="#FF5F57" stroke="#7A1F18" stroke-opacity="0.4" stroke-width="3"/>
+    <g transform="translate(250.0 212.0) scale(0.46) translate(-511.5 -512)" fill="#89CFF0">
+      <path d="M230.587,316.082L491.880,428.390L491.880,487.136L230.587,599.782L230.587,527.443L417.725,457.192L230.587,388.150Z"/>
+      <path d="M793.413,649.779L793.413,707.920L515.432,707.920L515.432,649.779Z"/>
+    </g>
+  </g>
+</svg>

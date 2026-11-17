@@ -1,0 +1,15 @@
+# Auto detect text files and perform LF normalization
+* text=auto eol=lf
+
+# Force specific binary formats
+*.deb binary
+*.a binary
+*.dylib binary
+*.framework binary
+*.xcframework binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.icns binary
+*.tar.gz binary
+*.zip binary

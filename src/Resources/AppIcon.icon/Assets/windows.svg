@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- The Windows window, peeking out from behind the rack: only its title bar
+       shows, with minimize, maximize and close at the right end. -->
+  <g transform="translate(468 112) rotate(5 190.0 150.0)">
+    <rect width="380" height="300" rx="38" fill="#3A3A3C"/>
+    <path d="M0 78 H380 V262 Q380 300 342 300 H38 Q0 300 0 262 Z" fill="#AEAEB2"/>
+    <g fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M190 39.0 H224"/>
+      <rect x="246" y="22.0" width="34" height="34" rx="3"/>
+      <path d="M302 22.0 L336 56.0 M336 22.0 L302 56.0"/>
+    </g>
+  </g>
+</svg>

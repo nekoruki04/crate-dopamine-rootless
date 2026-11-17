@@ -1,0 +1,42 @@
+libepoxy 1.5.10 on an iPhone, where the GL is ANGLE: build its EGL support on
+Apple systems too (upstream turns it off there, since a Mac has none of its
+own), and open ANGLE's frameworks by the names an app embeds them under.
+Scripts/build-virgl.sh applies it and builds with -Degl=yes; on a Mac nothing
+changes.
+
+diff -ruN a/src/dispatch_common.c b/src/dispatch_common.c
+--- a/src/dispatch_common.c
++++ b/src/dispatch_common.c
+@@ -174,6 +174,19 @@
+ #include "dispatch_common.h"
+ 
+ #if defined(__APPLE__)
++#include <TargetConditionals.h>
++#endif
++
++#if defined(__APPLE__) && TARGET_OS_IPHONE
++/* crate: an iOS app has only the GL it embeds, ANGLE, as the frameworks
++ * EGL.framework and GLESv2.framework. GLESv2 has the GLES 1 functions too, and
++ * the core GL ones a bootstrap without a current context looks up. */
++#define GLX_LIB "@rpath/GLESv2.framework/GLESv2"
++#define OPENGL_LIB "@rpath/GLESv2.framework/GLESv2"
++#define EGL_LIB "@rpath/EGL.framework/EGL"
++#define GLES1_LIB "@rpath/GLESv2.framework/GLESv2"
++#define GLES2_LIB "@rpath/GLESv2.framework/GLESv2"
++#elif defined(__APPLE__)
+ #define GLX_LIB "/opt/X11/lib/libGL.1.dylib"
+ #define OPENGL_LIB "/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL"
+ #define GLES1_LIB "libGLESv1_CM.so"
+diff -ruN a/src/dispatch_common.h b/src/dispatch_common.h
+--- a/src/dispatch_common.h
++++ b/src/dispatch_common.h
+@@ -28,7 +28,8 @@
+ #define PLATFORM_HAS_GLX ENABLE_GLX
+ #define PLATFORM_HAS_WGL 1
+ #elif defined(__APPLE__)
+-#define PLATFORM_HAS_EGL 0 
++/* crate: EGL where there is one, which on an iPhone is ANGLE's. */
++#define PLATFORM_HAS_EGL ENABLE_EGL
+ #define PLATFORM_HAS_GLX ENABLE_GLX
+ #define PLATFORM_HAS_WGL 0
+ #elif defined(ANDROID)

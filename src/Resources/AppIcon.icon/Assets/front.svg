@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- The crate's front, running off the bottom edge: planks with gaps between them, and a post at each corner. -->
+  <rect x="94" y="566" width="836" height="106" rx="22" fill="#D4954F"/>
+  <rect x="94" y="684" width="836" height="106" rx="22" fill="#D4954F"/>
+  <rect x="94" y="802" width="836" height="106" rx="22" fill="#D4954F"/>
+  <rect x="94" y="920" width="836" height="160" rx="22" fill="#D4954F"/>
+  <rect x="72" y="540" width="86" height="540" rx="28" fill="#B4743A"/>
+  <rect x="866" y="540" width="86" height="540" rx="28" fill="#B4743A"/>
+</svg>

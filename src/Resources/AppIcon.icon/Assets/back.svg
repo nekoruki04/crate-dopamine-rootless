@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- The open top: the dark inside, the back wall's top plank, and the tops of
+       the two side walls slanting forward to the front corners. Below them, the
+       black inside of the crate, seen through the gaps between the front planks
+       and kept between the corner posts. -->
+  <path d="M130 420 H894 L952 620 H72 Z" fill="#6B3F1D"/>
+  <rect x="130" y="420" width="764" height="54" rx="20" fill="#A8693A"/>
+  <path d="M130 420 H174 L156 560 H72 Z" fill="#C08447"/>
+  <path d="M850 420 H894 L952 560 H868 Z" fill="#C08447"/>
+  <rect x="154" y="566" width="716" height="464" fill="#000000"/>
+</svg>
