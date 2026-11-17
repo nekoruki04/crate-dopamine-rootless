@@ -80,9 +80,6 @@ cd crate-dopamine-rootless
 
 # Build application and generate .deb package
 ./scripts/build_crate.sh
-
-# Run verification suite
-python3 tests/verify_suite.py
 ```
 
 For instructions on compiling the Rust virtualization static library (`libcrate_ffi.a`) from source, see [docs/build.md](docs/build.md).
